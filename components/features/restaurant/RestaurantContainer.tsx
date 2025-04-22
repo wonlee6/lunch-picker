@@ -6,15 +6,18 @@ import { Category, Restaurant } from '@/types/restaurant'
 import { RestaurantPicker } from '@/components/features/restaurant/RestaurantPicker'
 import { RestaurantCard } from '@/components/features/restaurant/RestaurantCard'
 import { MapView } from '@/components/features/map/MapView'
+import { RestaurantAddModal } from '@/components/features/restaurant/RestaurantAddModal'
+import { Button } from '@/components/common/ui/button'
 
 interface RestaurantContainerProps {
   initialRestaurants: Restaurant[]
 }
 
 export function RestaurantContainer({ initialRestaurants }: RestaurantContainerProps) {
-  const [restaurants] = useState<Restaurant[]>(initialRestaurants)
+  const [restaurants, setRestaurants] = useState<Restaurant[]>(initialRestaurants)
   const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null)
   const [selectedCategory, setSelectedCategory] = useState<Category | 'all'>('all')
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   const handlePickRandom = () => {
     const filteredRestaurants =
@@ -37,12 +40,27 @@ export function RestaurantContainer({ initialRestaurants }: RestaurantContainerP
     setSelectedRestaurant(null)
   }
 
+  const handleOpenModal = () => {
+    setIsModalOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false)
+  }
+
+  const handleSaveRestaurant = (newRestaurant: Restaurant) => {
+    setRestaurants((prev) => [...prev, newRestaurant])
+  }
+
   return (
-    <div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
-      <div className='lg:col-span-1'>
-        <Card>
-          <CardHeader>
+    <div className='flex flex-col lg:flex-row gap-4 h-full'>
+      <div className='lg:w-1/3'>
+        <Card className='h-auto'>
+          <CardHeader className='flex flex-row items-center justify-between'>
             <CardTitle>점심 메뉴 고르기</CardTitle>
+            <Button onClick={handleOpenModal} variant={'ghost'}>
+              메뉴 추가하기
+            </Button>
           </CardHeader>
           <CardContent>
             <RestaurantPicker
@@ -58,8 +76,8 @@ export function RestaurantContainer({ initialRestaurants }: RestaurantContainerP
         )}
       </div>
 
-      <div className='lg:col-span-2'>
-        <Card className='h-[600px]'>
+      <div className='lg:w-2/3 flex-1 h-full'>
+        <Card className='h-full'>
           <CardHeader>
             <CardTitle>위치 보기</CardTitle>
           </CardHeader>
@@ -68,6 +86,12 @@ export function RestaurantContainer({ initialRestaurants }: RestaurantContainerP
           </CardContent>
         </Card>
       </div>
+
+      <RestaurantAddModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onSave={handleSaveRestaurant}
+      />
     </div>
   )
 }
