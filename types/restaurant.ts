@@ -12,5 +12,15 @@ export interface Restaurant {
 }
 
 export type PriceRange = 1 | 2 | 3
-
-export type Category = '한식' | '중식' | '일식' | '양식' | '분식' | '패스트푸드' | '카페' | '기타'
+export const categoryList = [
+  '한식',
+  '중식',
+  '일식',
+  '양식',
+  '분식',
+  '패스트푸드',
+  '카페',
+  '기타',
+  '음식점점'
+] as const
+export type Category = (typeof categoryList)[number]

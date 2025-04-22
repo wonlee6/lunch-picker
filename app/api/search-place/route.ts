@@ -1,4 +1,23 @@
+import { categoryList } from '@/types'
 import { NextResponse } from 'next/server'
+
+interface SearchResponse {
+  lastBuildDate: string
+  total: number
+  start: number
+  display: number
+  items: {
+    title: string
+    link: string
+    category: string
+    description: string
+    telephone: string
+    address: string
+    roadAddress: string
+    mapx: string
+    mapy: string
+  }[]
+}
 
 export async function GET(request: Request) {
   try {
@@ -52,8 +71,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: errorMessage, success: false }, { status: response.status })
     }
 
-    const data = await response.json()
-
+    const data: SearchResponse = await response.json()
     // 검색 결과에 위도/경도 좌표를 추가
     const processedItems =
       (data.items &&
@@ -67,11 +85,13 @@ export async function GET(request: Request) {
       []
 
     // 강남구 데이터만 필터링 (주소에 '강남구'가 포함된 결과만)
-    const gangnamResults = processedItems.filter(
-      (item: { roadAddress: string; category: string }) =>
-        item.roadAddress.includes('테헤란로') ||
-        (item.roadAddress.includes('삼성로') && item.category.startsWith('음식점'))
-    )
+    const gangnamResults = processedItems
+      .filter(
+        (item: { roadAddress: string; category: string }) =>
+          item.roadAddress.includes('테헤란로') || item.roadAddress.includes('삼성로')
+      )
+      .filter((item) => categoryList.some((v) => v === item.category.split('>')[0]))
+
     return NextResponse.json(gangnamResults)
   } catch {
     return NextResponse.json({ error: '서버 오류가 발생했습니다', success: false }, { status: 500 })
