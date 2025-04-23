@@ -19,6 +19,6 @@ export const categoryList = [
   '패스트푸드',
   '카페',
   '기타',
-  '음식점점'
+  '음식점'
 ] as const
 export type Category = (typeof categoryList)[number]

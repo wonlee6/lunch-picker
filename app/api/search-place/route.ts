@@ -32,10 +32,8 @@ export async function GET(request: Request) {
     }
 
     // 네이버 API 클라이언트 ID와 시크릿 확인
-    const clientId =
-      process.env.NEXT_PUBLIC_NAVER_CLIENT_ID || process.env.NEXT_PUBLIC_NAVER_MAP_CLIENT_ID
-    const clientSecret =
-      process.env.NEXT_PUBLIC_NAVER_CLIENT_SECRET || process.env.NEXT_PUBLIC_NAVER_MAP_CLIENT_SECRET
+    const clientId = process.env.NEXT_PUBLIC_NAVER_CLIENT_ID
+    const clientSecret = process.env.NEXT_PUBLIC_NAVER_MAP_CLIENT_SECRET
 
     if (!clientId || !clientSecret) {
       return NextResponse.json(
@@ -49,9 +47,9 @@ export async function GET(request: Request) {
 
     // 네이버 장소 검색 API 호출
     const response = await fetch(
-      `https://openapi.naver.com/v1/search/local.json?query=${encodeURIComponent(
+      `https://openapi.naver.com/v1/search/local.json?display=100&query=${encodeURIComponent(
         finalQuery
-      )}&display=30`,
+      )}`,
       {
         headers: {
           'X-Naver-Client-Id': clientId,
@@ -72,6 +70,7 @@ export async function GET(request: Request) {
     }
 
     const data: SearchResponse = await response.json()
+    console.log('data', data)
     // 검색 결과에 위도/경도 좌표를 추가
     const processedItems =
       (data.items &&
