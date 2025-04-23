@@ -10,22 +10,6 @@ declare global {
   }
 }
 
-// 플레이스 검색 결과 인터페이스
-interface PlaceSearchResult {
-  title: string
-  address: string
-  roadAddress: string
-  mapx: string
-  mapy: string
-  category: string
-  description: string
-  telephone: string
-  link: string
-  // 백엔드에서 변환된 좌표
-  lat: number
-  lng: number
-}
-
 interface MapViewProps {
   selectedRestaurant: Restaurant | null
   restaurants: Restaurant[]
@@ -38,7 +22,7 @@ export const MapView = ({ selectedRestaurant, restaurants }: MapViewProps) => {
   const infoWindowsRef = useRef<naver.maps.InfoWindow[]>([])
   const [isMapLoading, setIsMapLoading] = useState(true)
   const [mapError, setMapError] = useState<string | null>(null)
-  const [placeInfo, setPlaceInfo] = useState<PlaceSearchResult[]>([])
+  const [placeInfo, setPlaceInfo] = useState<Restaurant[]>([])
   const [selectedPlaceIndex, setSelectedPlaceIndex] = useState<number>(-1)
   const [isPlaceLoading, setIsPlaceLoading] = useState(false)
   const [placeError, setPlaceError] = useState<string | null>(null)
@@ -77,12 +61,12 @@ export const MapView = ({ selectedRestaurant, restaurants }: MapViewProps) => {
 
         // 검색된 장소들에 마커 생성
         if (mapInstanceRef.current) {
-          data.forEach((place: PlaceSearchResult, index: number) => {
+          data.forEach((place: Restaurant, index: number) => {
             // 백엔드에서 이미 변환된 좌표 사용
-            if (!place.lat || !place.lng) return
+            if (!place.mapx || !place.mapy) return
 
             // 네이버 좌표 생성
-            const latLng = new window.naver.maps.LatLng(place.lat, place.lng)
+            const latLng = new window.naver.maps.LatLng(place.mapy, place.mapx)
 
             // 마커 생성
             const marker = new window.naver.maps.Marker({
@@ -112,7 +96,7 @@ export const MapView = ({ selectedRestaurant, restaurants }: MapViewProps) => {
               mapInstanceRef.current.setCenter(
                 searchMarkersRef.current[0].getPosition() as naver.maps.LatLng
               )
-              mapInstanceRef.current.setZoom(15)
+              mapInstanceRef.current.setZoom(18)
             }
           }
         }
@@ -141,7 +125,7 @@ export const MapView = ({ selectedRestaurant, restaurants }: MapViewProps) => {
 
     // 새 마커 생성
     restaurants.forEach((restaurant) => {
-      const markerPosition = new window.naver.maps.LatLng(restaurant.lat, restaurant.lng)
+      const markerPosition = new window.naver.maps.LatLng(restaurant.mapy, restaurant.mapx)
       if (!mapInstanceRef.current) return
 
       // 마커 아이콘 설정
@@ -149,11 +133,11 @@ export const MapView = ({ selectedRestaurant, restaurants }: MapViewProps) => {
       const marker = new window.naver.maps.Marker({
         position: markerPosition,
         map: mapInstanceRef.current,
-        title: restaurant.name,
+        title: restaurant.title,
         icon: {
-          content: `<div class="marker ${isSelected ? 'selected' : ''}">${restaurant.name}</div>`,
+          content: `<div class="marker ${isSelected ? 'selected' : ''}">${restaurant.title}</div>`,
           size: new window.naver.maps.Size(38, 58),
-          anchor: new window.naver.maps.Point(55, 42)
+          anchor: new window.naver.maps.Point(25, 42)
         },
         zIndex: isSelected ? 40 : 30
       })
@@ -162,8 +146,8 @@ export const MapView = ({ selectedRestaurant, restaurants }: MapViewProps) => {
       const infoWindow = new window.naver.maps.InfoWindow({
         content: `
           <div class="info-window">
-            <h3>${restaurant.name}</h3>
-            <p>${restaurant.category} | ${restaurant.address}</p>
+            <h3>${restaurant.title}</h3>
+            <p>${restaurant.category} | ${restaurant.roadAddress}</p>
             <button class="place-details-btn" data-id="${restaurant.id}">상세 정보 보기</button>
           </div>
         `,
@@ -191,7 +175,7 @@ export const MapView = ({ selectedRestaurant, restaurants }: MapViewProps) => {
           )
           if (detailsBtn) {
             detailsBtn.addEventListener('click', () => {
-              fetchPlaceInfo(restaurant.name, restaurant.address)
+              fetchPlaceInfo(restaurant.title, restaurant.roadAddress)
             })
           }
         }, 100)
@@ -280,9 +264,12 @@ export const MapView = ({ selectedRestaurant, restaurants }: MapViewProps) => {
     createMarkers()
 
     if (selectedRestaurant) {
-      const position = new window.naver.maps.LatLng(selectedRestaurant.lat, selectedRestaurant.lng)
+      const position = new window.naver.maps.LatLng(
+        selectedRestaurant.mapy,
+        selectedRestaurant.mapx
+      )
       mapInstanceRef.current.setCenter(position)
-      mapInstanceRef.current.setZoom(16)
+      mapInstanceRef.current.setZoom(18)
 
       // 선택된 식당의 마커를 찾아 정보창 열기
       const selectedMarkerIndex = markersRef.current.findIndex(
@@ -301,7 +288,7 @@ export const MapView = ({ selectedRestaurant, restaurants }: MapViewProps) => {
           )
 
           // 선택된 가게의 플레이스 정보 가져오기
-          fetchPlaceInfo(selectedRestaurant.name, selectedRestaurant.address)
+          fetchPlaceInfo(selectedRestaurant.title, selectedRestaurant.roadAddress)
         }
       }
     } else {
@@ -323,15 +310,16 @@ export const MapView = ({ selectedRestaurant, restaurants }: MapViewProps) => {
 
     try {
       // 저장할 데이터 구성
-      const restaurantData = {
-        name: place.title.replace(/<[^>]*>/g, ''),
+      const restaurantData: Restaurant = {
+        title: place.title.replace(/<[^>]*>/g, ''),
         category: place.category,
-        address: place.roadAddress || place.address,
-        lat: place.lat,
-        lng: place.lng,
-        rating: 4.0, // 기본값
-        priceRange: 2, // 기본값
-        imageUrl: '' // 기본값
+        address: place.address,
+        roadAddress: place.roadAddress,
+        mapy: place.mapy,
+        mapx: place.mapx,
+        id: place.id,
+        like: place.like,
+        link: place.link
       }
 
       // 서버에 데이터 저장 요청
@@ -354,7 +342,7 @@ export const MapView = ({ selectedRestaurant, restaurants }: MapViewProps) => {
       // 3초 후 성공 메시지 숨기기
       setTimeout(() => {
         setSaveSuccess(false)
-      }, 3000)
+      }, 1000)
     } catch (error) {
       setSaveError(error instanceof Error ? error.message : '가게 정보 저장 중 오류가 발생했습니다')
     } finally {
@@ -409,16 +397,6 @@ export const MapView = ({ selectedRestaurant, restaurants }: MapViewProps) => {
           <p>
             <strong>주소:</strong> {place.roadAddress || place.address}
           </p>
-          {place.telephone && (
-            <p>
-              <strong>전화:</strong> {place.telephone}
-            </p>
-          )}
-          {place.description && (
-            <p>
-              <strong>설명:</strong> {place.description}
-            </p>
-          )}
 
           <div className='place-info-actions'>
             <a
@@ -536,7 +514,7 @@ export const MapView = ({ selectedRestaurant, restaurants }: MapViewProps) => {
 
                 // 지도 중심 이동 및 줌 레벨 설정
                 mapInstanceRef.current?.setCenter(currentLocation)
-                mapInstanceRef.current?.setZoom(16)
+                mapInstanceRef.current?.setZoom(18)
 
                 // 알림 표시
                 alert('현재 위치로 이동했습니다.')

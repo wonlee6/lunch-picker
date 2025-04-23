@@ -1,17 +1,15 @@
 export interface Restaurant {
   id: string
-  name: string
+  title: string
+  link: string
   category: string
   address: string
-  lat: number
-  lng: number
-  rating: number
-  priceRange: 1 | 2 | 3
-  imageUrl?: string
+  roadAddress: string
+  mapx: number
+  mapy: number
   like: number
 }
 
-export type PriceRange = 1 | 2 | 3
 export const categoryList = [
   '한식',
   '중식',

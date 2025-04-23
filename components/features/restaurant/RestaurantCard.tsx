@@ -17,13 +17,12 @@ export const RestaurantCard = ({ restaurant, onReset }: RestaurantCardProps) => 
       <CardContent>
         <div className='space-y-4'>
           <div>
-            <h3 className='font-bold text-xl'>{restaurant.name}</h3>
+            <h3 className='font-bold text-xl'>{restaurant.title}</h3>
             <p className='text-muted-foreground'>{restaurant.category}</p>
           </div>
           <Separator />
           <div>
             <p className='text-sm'>주소: {restaurant.address}</p>
-            <p className='text-sm'>가격대: {'₩'.repeat(restaurant.priceRange)}</p>
           </div>
         </div>
       </CardContent>

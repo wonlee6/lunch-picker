@@ -59,7 +59,7 @@ export function RestaurantContainer({ initialRestaurants }: RestaurantContainerP
           <CardHeader className='flex flex-row items-center justify-between'>
             <CardTitle>점심 메뉴 고르기</CardTitle>
             <Button onClick={handleOpenModal} variant={'ghost'}>
-              메뉴 추가하기
+              가게 추가하기
             </Button>
           </CardHeader>
           <CardContent>

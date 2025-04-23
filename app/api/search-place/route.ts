@@ -78,8 +78,8 @@ export async function GET(request: Request) {
         data.items.map((item) => {
           return {
             ...item,
-            lat: parseFloat(item.mapy) / 10000000, // 단순화된 변환
-            lng: parseFloat(item.mapx) / 10000000 // 단순화된 변환
+            mapy: parseFloat(item.mapy) / 10000000, // 단순화된 변환
+            mapx: parseFloat(item.mapx) / 10000000 // 단순화된 변환
           }
         })) ||
       []
@@ -90,7 +90,7 @@ export async function GET(request: Request) {
         (item: { roadAddress: string; category: string }) =>
           item.roadAddress.includes('테헤란로') || item.roadAddress.includes('삼성로')
       )
-      .filter((item) => categoryList.some((v) => v === item.category.split('>')[0]))
+      .filter((item) => categoryList.some((v) => item.category.split('>')[0].includes(v)))
 
     return NextResponse.json(gangnamResults)
   } catch {
