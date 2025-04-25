@@ -107,6 +107,7 @@ export function RestaurantContainer({ initialRestaurants }: RestaurantContainerP
             <RestaurantPicker
               selectedCategory={selectedCategory}
               onCategoryChange={handleCategoryChange}
+              restaurants={filteredRestaurantsList}
               onPickRandom={handlePickRandom}
             />
           </CardContent>
