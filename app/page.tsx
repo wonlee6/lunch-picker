@@ -10,6 +10,7 @@ const SUBTITLE_CLASS = 'text-center text-muted-foreground mt-2'
 const CONTAINER_CLASS = 'flex flex-col h-screen p-4 md:p-8'
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://bizflow-lunch-picker.vercel.app/'),
   title: '오늘 점심 뭐 먹지?',
   description: '회사 근처 맛집을 랜덤으로 추천해주는 서비스입니다.',
   openGraph: {
