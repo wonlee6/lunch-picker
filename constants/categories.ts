@@ -8,6 +8,5 @@ export const CATEGORIES: Array<{ value: Category | 'all'; label: string }> = [
   { value: '양식', label: '양식' },
   { value: '분식', label: '분식' },
   { value: '패스트푸드', label: '패스트푸드' },
-  { value: '카페', label: '카페' },
-  { value: '음식점', label: '기타' }
+  { value: '카페', label: '카페' }
 ]

@@ -5,17 +5,17 @@ import { Button } from '@/components/common/ui/button'
 import { Separator } from '@/components/common/ui/separator'
 import { CATEGORIES } from '@/constants/categories'
 
-interface RestaurantPickerProps {
+export interface RestaurantPickerProps {
   selectedCategory: Category | 'all'
   onCategoryChange: (category: Category | 'all') => void
   onPickRandom: () => void
 }
 
-export const RestaurantPicker = ({
+export function RestaurantPicker({
   selectedCategory,
   onCategoryChange,
   onPickRandom
-}: RestaurantPickerProps) => {
+}: RestaurantPickerProps) {
   return (
     <div className='space-y-6'>
       <div>

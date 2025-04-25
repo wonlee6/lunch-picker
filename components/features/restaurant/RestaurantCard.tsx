@@ -10,22 +10,24 @@ import {
 import { Separator } from '@/components/common/ui/separator'
 import { Button } from '@/components/common/ui/button'
 
-interface RestaurantCardProps {
+export interface RestaurantCardProps {
   restaurant: Restaurant
   onReset: () => void
 }
 
-export const RestaurantCard = ({ restaurant, onReset }: RestaurantCardProps) => {
+export function RestaurantCard({ restaurant, onReset }: RestaurantCardProps) {
   return (
     <Card className='mt-6 py-3 gap-2'>
       <CardHeader>
-        <CardTitle>{restaurant.title}</CardTitle>
+        <CardTitle>{restaurant.place_name}</CardTitle>
         <div className='flex justify-between items-center'>
-          <CardDescription>{restaurant.category}</CardDescription>
-          {restaurant.link && (
+          <CardDescription>{restaurant.category_name}</CardDescription>
+          {restaurant.place_url && (
             <div className='text-right'>
-              <Button className='text-blue-500' variant={'link'} size='sm'>
-                홈페이지 바로가기
+              <Button className='text-blue-500' variant='link' size='sm' asChild>
+                <a href={restaurant.place_url} target='_blank' rel='noopener noreferrer'>
+                  홈페이지 바로가기
+                </a>
               </Button>
             </div>
           )}
@@ -34,7 +36,7 @@ export const RestaurantCard = ({ restaurant, onReset }: RestaurantCardProps) => 
       <CardContent>
         <div className='space-y-2'>
           <Separator />
-          <p className='text-sm'>주소: {restaurant.address}</p>
+          <p className='text-sm'>주소: {restaurant.road_address_name}</p>
         </div>
       </CardContent>
       <CardFooter>

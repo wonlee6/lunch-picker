@@ -2,7 +2,6 @@
 
 import { useState, useCallback, useEffect } from 'react'
 import { Restaurant } from '@/types/restaurant'
-import { v4 as uuidv4 } from 'uuid'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/common/ui/dialog'
 import { Input } from '@/components/common/ui/input'
 import { Button } from '@/components/common/ui/button'
@@ -10,6 +9,7 @@ import { Search } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
+import { v4 as uuidv4 } from 'uuid'
 
 interface RestaurantAddModalProps {
   isOpen: boolean
@@ -17,19 +17,6 @@ interface RestaurantAddModalProps {
   onSave: (data: Restaurant) => void
 }
 
-// API 응답의 기본 형태 (타입스크립트 추론용)
-interface ApiSearchResult {
-  title: string
-  address: string
-  roadAddress: string
-  category: string
-  link: string
-  mapx: string // 네이버 API는 문자열로 반환
-  mapy: string // 네이버 API는 문자열로 반환
-  // lat, lng 등 다른 필드는 Restaurant 타입 매핑 시 사용 안 함
-}
-
-// API 호출 및 Restaurant 타입으로 변환하는 함수
 const fetchAndMapSearchResults = async (query: string): Promise<Restaurant[]> => {
   if (!query.trim()) {
     return []
@@ -39,33 +26,18 @@ const fetchAndMapSearchResults = async (query: string): Promise<Restaurant[]> =>
     const errorData = await response.json()
     throw new Error(errorData.error || '검색 중 오류가 발생했습니다')
   }
-  const data: ApiSearchResult[] = await response.json()
-
-  if (Array.isArray(data)) {
-    // API 결과를 Restaurant 타입으로 매핑
-    return data.map((item) => ({
-      id: uuidv4(), // 새 ID 생성
-      title: item.title.replace(/<[^>]*>/g, ''), // HTML 태그 제거
-      link: item.link,
-      category: item.category, // 카테고리 매핑은 선택 시 수행
-      address: item.address,
-      roadAddress: item.roadAddress,
-      mapx: parseFloat(item.mapx), // 문자열 -> 숫자 변환
-      mapy: parseFloat(item.mapy), // 문자열 -> 숫자 변환
-      like: 0 // 기본값
-    }))
-  } else {
-    throw new Error('검색 결과를 처리할 수 없습니다.')
-  }
+  const data: Restaurant[] = await response.json()
+  return data.map((item) => ({ ...item, id: uuidv4(), x: Number(item.x), y: Number(item.y) }))
 }
 
 export function RestaurantAddModal({ isOpen, onClose, onSave }: RestaurantAddModalProps) {
-  const [searchQuery, setSearchQuery] = useState('')
   const supabase = createClient()
+
+  const [searchQuery, setSearchQuery] = useState('')
   const [isSaving, setIsSaving] = useState(false)
 
   const {
-    data: searchResults, // 이제 Restaurant[] 타입
+    data: searchResults,
     error,
     isError,
     isLoading,
@@ -168,14 +140,14 @@ export function RestaurantAddModal({ isOpen, onClose, onSave }: RestaurantAddMod
               </div>
             )}
 
-            <div className='border rounded-md overflow-y-auto min-h-[200px] flex items-center justify-center'>
+            <div className='border rounded-md overflow-y-auto h-[400px] flex items-center justify-center'>
               {isActuallySearching ? (
                 <div className='p-8 text-center text-muted-foreground'>
                   <span className='animate-spin h-5 w-5 border-2 border-current border-t-transparent rounded-full inline-block mr-2'></span>
                   검색 중...
                 </div>
               ) : searchResults && searchResults.length > 0 ? (
-                <ul className='divide-y w-full'>
+                <ul className='divide-y size-full'>
                   {searchResults.map((result) => (
                     <li
                       key={result.id}
@@ -184,11 +156,13 @@ export function RestaurantAddModal({ isOpen, onClose, onSave }: RestaurantAddMod
                       }`}
                       onClick={() => !isSaving && handleSelectSearchResult(result)}
                     >
-                      <div className='font-medium'>{result.title}</div>
+                      <div className='font-medium'>{result.place_name}</div>
                       <div className='text-sm text-muted-foreground'>
-                        {result.roadAddress || result.address}
+                        {result.road_address_name || result.address_name}
                       </div>
-                      <div className='text-xs text-muted-foreground mt-1'>{result.category}</div>
+                      <div className='text-xs text-muted-foreground mt-1'>
+                        {result.category_name}
+                      </div>
                     </li>
                   ))}
                 </ul>

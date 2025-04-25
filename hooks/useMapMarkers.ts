@@ -1,7 +1,9 @@
 import { useEffect, useRef } from 'react'
 import { Restaurant } from '@/types/restaurant'
 
-type MapType = naver.maps.Map | null
+// kakao map 타입 지정
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type MapType = any | null
 
 export function useMapMarkers(
   map: MapType,
@@ -9,42 +11,49 @@ export function useMapMarkers(
   onSelectRestaurant: (restaurant: Restaurant) => void,
   selectedRestaurant: Restaurant | null
 ) {
-  const markersRef = useRef<naver.maps.Marker[]>([])
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const markersRef = useRef<any[]>([])
 
   useEffect(() => {
-    if (!map) return
+    if (!map || !window.kakao) return
 
     // 기존 마커 제거
     markersRef.current.forEach((marker) => marker.setMap(null))
     markersRef.current = []
 
     restaurants.forEach((restaurant) => {
-      const position = new window.naver.maps.LatLng(restaurant.mapy, restaurant.mapx)
+      const position = new window.kakao.maps.LatLng(restaurant.y, restaurant.x)
       const isSelected = selectedRestaurant?.id === restaurant.id
 
-      const marker = new window.naver.maps.Marker({
+      // 마커 크기 조정 (일반/선택)
+      const markerSize = isSelected
+        ? new window.kakao.maps.Size(40, 55)
+        : new window.kakao.maps.Size(40, 60)
+
+      const markerImage = isSelected
+        ? new window.kakao.maps.MarkerImage(
+            'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png',
+            markerSize
+          )
+        : undefined
+
+      const marker = new window.kakao.maps.Marker({
         position,
         map,
-        title: restaurant.title,
-        icon: {
-          content: `<div class="marker ${isSelected ? 'selected' : ''}">${restaurant.title}</div>`,
-          size: new window.naver.maps.Size(38, 58),
-          anchor: new window.naver.maps.Point(25, 42)
-        },
-        zIndex: isSelected ? 40 : 30
+        title: restaurant.place_name,
+        zIndex: isSelected ? 40 : 30,
+        clickable: true,
+        image: markerImage
       })
-
-      marker.addListener('click', () => {
+      if (isSelected) {
+        map.setCenter(position)
+        map.setLevel(3)
+      }
+      window.kakao.maps.event.addListener(marker, 'click', () => {
         map.setCenter(position)
         onSelectRestaurant(restaurant)
       })
-
       markersRef.current.push(marker)
-
-      if (isSelected) {
-        map.setCenter(position)
-        map.setZoom(17)
-      }
     })
   }, [map, restaurants, selectedRestaurant, onSelectRestaurant])
 }

@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 // 허용할 IP 주소 목록
-const ALLOWED_IPS = ['192.168.10.53']
+const ALLOWED_IPS = [process.env.NEXT_PUBLIC_ALLOWED_IP]
 
 // 개발 환경에서 허용할 IP (선택 사항)
 const DEV_IPS = ['127.0.0.1', '::1']

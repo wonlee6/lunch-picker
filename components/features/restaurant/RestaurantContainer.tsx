@@ -9,7 +9,27 @@ import { MapView } from '@/components/features/map/MapView'
 import { RestaurantAddModal } from '@/components/features/restaurant/RestaurantAddModal'
 import { Button } from '@/components/common/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/common/ui/tabs'
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/common/ui/table'
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell
+} from '@/components/common/ui/table'
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction
+} from '@/components/common/ui/alert-dialog'
+import { supabase } from '@/lib/services/supabase'
+import { toast } from 'sonner'
 
 interface RestaurantContainerProps {
   initialRestaurants: Restaurant[]
@@ -54,22 +74,23 @@ export function RestaurantContainer({ initialRestaurants }: RestaurantContainerP
     }
   }
 
-  // 식당 수정/삭제 핸들러
-  const handleEditRestaurant = (restaurant: Restaurant) => {
-    setSelectedRestaurant(restaurant)
-    setIsModalOpen(true)
-  }
-  const handleDeleteRestaurant = (id: Restaurant['id']) => {
-    setRestaurants(prev => prev.filter((r) => r.id !== id))
-    if (selectedRestaurant?.id === id) {
-      setSelectedRestaurant(null)
+  const handleDeleteRestaurant = async (id: Restaurant['id']) => {
+    const { error } = await supabase.from('lunch_picker').delete().eq('id', id)
+    if (!error) {
+      setRestaurants((prev) => prev.filter((r) => r.id !== id))
+      if (selectedRestaurant?.id === id) {
+        setSelectedRestaurant(null)
+      }
+      toast.success('가게 정보가 성공적으로 삭제되었습니다.')
+    } else {
+      toast.error('데이터 처리 중 예기치 않은 오류가 발생했습니다.')
     }
   }
 
   const filteredRestaurantsList = useMemo(() => {
     return selectedCategory === 'all'
       ? restaurants
-      : restaurants.filter((r) => r.category.includes(selectedCategory))
+      : restaurants.filter((r) => r.category_name.includes(selectedCategory))
   }, [restaurants, selectedCategory])
 
   return (
@@ -100,7 +121,7 @@ export function RestaurantContainer({ initialRestaurants }: RestaurantContainerP
         <Tabs className='size-full' defaultValue='map'>
           <TabsList>
             <TabsTrigger value='map'>위치 보기</TabsTrigger>
-            <TabsTrigger value='info'>가게 정보</TabsTrigger>
+            <TabsTrigger value='info'>가게 리스트</TabsTrigger>
           </TabsList>
           <TabsContent value='map'>
             <Card className='h-full p-0 gap-0'>
@@ -119,7 +140,6 @@ export function RestaurantContainer({ initialRestaurants }: RestaurantContainerP
           <TabsContent value='info'>
             <RestaurantList
               restaurants={filteredRestaurantsList}
-              onEdit={handleEditRestaurant}
               onDelete={handleDeleteRestaurant}
             />
           </TabsContent>
@@ -137,36 +157,53 @@ export function RestaurantContainer({ initialRestaurants }: RestaurantContainerP
 
 function RestaurantList({
   restaurants,
-  onEdit,
-  onDelete,
+  onDelete
 }: {
   restaurants: Restaurant[]
-  onEdit: (restaurant: Restaurant) => void
   onDelete: (id: string) => void
 }) {
   return (
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>가게명</TableHead>
-          <TableHead>카테고리</TableHead>
-          <TableHead>주소</TableHead>
-          <TableHead>액션</TableHead>
+          <TableHead className='text-center'>가게명</TableHead>
+          <TableHead className='text-center'>카테고리</TableHead>
+          <TableHead className='text-center'>주소</TableHead>
+          <TableHead className='text-center'>액션</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {restaurants.map((rest) => (
           <TableRow key={rest.id}>
-            <TableCell>{rest.title}</TableCell>
-            <TableCell>{rest.category}</TableCell>
-            <TableCell>{rest.roadAddress || rest.address}</TableCell>
+            <TableCell>{rest.place_name}</TableCell>
+            <TableCell>{rest.category_name}</TableCell>
+            <TableCell>{rest.road_address_name}</TableCell>
             <TableCell className='flex gap-2'>
-              <Button variant='ghost' size='sm' onClick={() => onEdit(rest)}>
-                수정
-              </Button>
-              <Button variant='ghost' size='sm' onClick={() => onDelete(rest.id)}>
-                삭제
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant='ghost' size='sm'>
+                    삭제
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>정말 삭제하시겠습니까?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      이 작업은 되돌릴 수 없습니다. 해당 식당 정보를 영구히 삭제합니다.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>취소</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={async () => {
+                        await onDelete(rest.id)
+                      }}
+                    >
+                      삭제
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </TableCell>
           </TableRow>
         ))}
