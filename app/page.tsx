@@ -1,5 +1,6 @@
 import { RestaurantContainer } from '@/components/features/restaurant/RestaurantContainer'
 import { createClient } from '@/lib/supabase/server'
+import { Metadata } from 'next'
 import { cookies } from 'next/headers'
 
 const HEADER_HEIGHT = 120
@@ -7,6 +8,31 @@ const HEADER_CLASS = 'mb-4'
 const TITLE_CLASS = 'text-3xl font-bold text-center'
 const SUBTITLE_CLASS = 'text-center text-muted-foreground mt-2'
 const CONTAINER_CLASS = 'flex flex-col h-screen p-4 md:p-8'
+
+export const metadata: Metadata = {
+  title: '오늘 점심 뭐 먹지?',
+  description: '회사 근처 맛집을 랜덤으로 추천해주는 서비스입니다.',
+  openGraph: {
+    title: '오늘 점심 뭐 먹지?',
+    description: '회사 근처 맛집을 랜덤으로 추천해주는 서비스입니다.',
+    images: [
+      {
+        url: '/cat.jpeg',
+        width: 800,
+        height: 600,
+        alt: '대표 이미지 설명'
+      }
+    ],
+    locale: 'ko_KR',
+    type: 'website'
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: '오늘 점심 뭐 먹지?',
+    description: '회사 근처 맛집을 랜덤으로 추천해주는 서비스입니다.',
+    images: ['/cat.jpeg']
+  }
+}
 
 export default async function Home() {
   const cookieStore = await cookies()
