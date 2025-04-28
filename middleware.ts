@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import ipRangeCheck from 'ip-range-check';
 
-// 허용할 IP 주소 목록
-const ALLOWED_PREFIXES = ['192.168.9.', '192.168.10.']
+// 허용할 IP 대역 (CIDR 형식)
+const ALLOWED_RANGES = (process.env.NEXT_PUBLIC_ALLOWED_IP_RANGES?.split(',') || []).map(x => x.trim());
 
 // 개발 환경에서 허용할 IP (선택 사항)
 const DEV_IPS = ['127.0.0.1', '::1']
@@ -38,10 +39,10 @@ export function middleware(request: NextRequest) {
   // 현재 환경이 개발 환경인지 확인 (선택 사항)
   const isDevelopment = process.env.NODE_ENV === 'development'
 
-  // 허용된 IP 목록
-  let allowedIpList = [...ALLOWED_PREFIXES]
+  // 허용된 IP 대역
+  let allowedRanges = [...ALLOWED_RANGES];
   if (isDevelopment) {
-    allowedIpList = [...allowedIpList, ...DEV_IPS]
+    allowedRanges = [...allowedRanges, ...DEV_IPS];
   }
 
   // IP 주소를 확인할 수 없는 경우 차단 페이지로 rewrite
@@ -52,8 +53,8 @@ export function middleware(request: NextRequest) {
     return NextResponse.rewrite(url)
   }
 
-  // IP 주소 확인 후 차단 시 차단 페이지로 rewrite
-  if (!allowedIpList.some((prefix) => userIp.startsWith(prefix))) {
+  // IP 주소가 허용된 범위에 포함되지 않으면 차단
+  if (!ipRangeCheck(userIp, allowedRanges)) {
     console.warn(`차단된 IP 접근: ${userIp}`)
     const url = request.nextUrl.clone()
     url.pathname = '/access-denied'
