@@ -19,7 +19,7 @@ export async function GET(request: Request) {
     )
   }
   const response = await fetch(
-    `https://dapi.kakao.com/v2/local/search/keyword.json?y=37.507678&x=127.054957&radius=2000&size=15&category_group_code=FD6&query=${encodeURIComponent(
+    `https://dapi.kakao.com/v2/local/search/keyword.json?y=37.507678&x=127.054957&radius=1000&size=15&category_group_code=FD6&query=${encodeURIComponent(
       keyword
     )}`,
     {

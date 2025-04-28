@@ -2,7 +2,13 @@
 
 import { useState, useCallback, useEffect } from 'react'
 import { Restaurant } from '@/types/restaurant'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/common/ui/dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle
+} from '@/components/common/ui/dialog'
 import { Input } from '@/components/common/ui/input'
 import { Button } from '@/components/common/ui/button'
 import { Search } from 'lucide-react'
@@ -101,6 +107,7 @@ export function RestaurantAddModal({ isOpen, onClose, onSave }: RestaurantAddMod
       <DialogContent className='sm:max-w-[900px] max-h-[90vh] overflow-hidden flex flex-col z-[220]'>
         <DialogHeader>
           <DialogTitle>가게 검색</DialogTitle>
+          <DialogDescription>회사 중심으로 반경 1km 가게만 노출됩니다.</DialogDescription>
         </DialogHeader>
 
         <div className='overflow-y-auto py-4 flex-1'>
@@ -113,6 +120,7 @@ export function RestaurantAddModal({ isOpen, onClose, onSave }: RestaurantAddMod
                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                 className='flex-1'
                 disabled={isSaving}
+                maxLength={100}
               />
               <Button
                 onClick={handleSearch}

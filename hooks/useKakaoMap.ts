@@ -21,11 +21,25 @@ export const useKakaoMap = (mapRef: React.RefObject<HTMLDivElement | null>) => {
 
     script.onload = () => {
       window.kakao.maps.load(() => {
+        const imageSize = new window.kakao.maps.Size(30, 30)
+        const imageOption = { offset: new window.kakao.maps.Point(0, 40) }
+        const markerImage = new window.kakao.maps.MarkerImage(
+          'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png',
+          imageSize,
+          imageOption
+        )
+
         const mapOption = {
           center: new window.kakao.maps.LatLng(37.507678, 127.054957),
           level: 3
         }
         const mapInstance = new window.kakao.maps.Map(mapRef.current, mapOption)
+        // 커스텀 마커 추가 (MarkerImage 적용)
+        new window.kakao.maps.Marker({
+          position: mapOption.center,
+          image: markerImage,
+          map: mapInstance
+        })
         setMap(mapInstance)
       })
     }
