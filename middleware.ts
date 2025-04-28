@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 // 허용할 IP 주소 목록
-const ALLOWED_IPS = process.env.NEXT_PUBLIC_ALLOWED_IP?.split(',') || []
+const ALLOWED_PREFIXES = ['192.168.9.', '192.168.10.']
 
 // 개발 환경에서 허용할 IP (선택 사항)
 const DEV_IPS = ['127.0.0.1', '::1']
@@ -34,7 +34,7 @@ export function middleware(request: NextRequest) {
   const isDevelopment = process.env.NODE_ENV === 'development'
 
   // 허용된 IP 목록
-  let allowedIpList = [...ALLOWED_IPS]
+  let allowedIpList = [...ALLOWED_PREFIXES]
   if (isDevelopment) {
     allowedIpList = [...allowedIpList, ...DEV_IPS]
   }
@@ -48,7 +48,7 @@ export function middleware(request: NextRequest) {
   }
 
   // IP 주소 확인 후 차단 시 차단 페이지로 rewrite
-  if (!allowedIpList.includes(userIp)) {
+  if (!allowedIpList.some((prefix) => userIp.startsWith(prefix))) {
     console.warn(`차단된 IP 접근: ${userIp}`)
     const url = request.nextUrl.clone()
     url.pathname = '/access-denied'
