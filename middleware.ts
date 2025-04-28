@@ -26,6 +26,11 @@ export function middleware(request: NextRequest) {
     userIp = forwarded.split(',')[0].trim()
   }
 
+  // IPv4-mapped IPv6 주소 형식 처리 (예: ::ffff:192.168.10.53)
+  if (userIp?.startsWith('::ffff:')) {
+    userIp = userIp.replace('::ffff:', '')
+  }
+
   console.log('접근 시도 - x-real-ip:', realIp)
   console.log('접근 시도 - x-forwarded-for:', forwarded)
   console.log('최종 확인된 IP:', userIp)
