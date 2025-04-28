@@ -148,6 +148,7 @@ export function RestaurantContainer({ initialRestaurants }: RestaurantContainerP
       </div>
 
       <RestaurantAddModal
+        restaurants={restaurants}
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onSave={handleSaveRestaurant}

@@ -21,6 +21,7 @@ interface RestaurantAddModalProps {
   isOpen: boolean
   onClose: () => void
   onSave: (data: Restaurant) => void
+  restaurants: Restaurant[]
 }
 
 const fetchAndMapSearchResults = async (query: string): Promise<Restaurant[]> => {
@@ -36,7 +37,12 @@ const fetchAndMapSearchResults = async (query: string): Promise<Restaurant[]> =>
   return data.map((item) => ({ ...item, id: uuidv4(), x: Number(item.x), y: Number(item.y) }))
 }
 
-export function RestaurantAddModal({ isOpen, onClose, onSave }: RestaurantAddModalProps) {
+export function RestaurantAddModal({
+  isOpen,
+  onClose,
+  onSave,
+  restaurants
+}: RestaurantAddModalProps) {
   const supabase = createClient()
 
   const [searchQuery, setSearchQuery] = useState('')
@@ -67,6 +73,17 @@ export function RestaurantAddModal({ isOpen, onClose, onSave }: RestaurantAddMod
   const handleSelectSearchResult = useCallback(
     async (selectedRest: Restaurant) => {
       if (isSaving) return
+
+      const hasRest = restaurants.some(
+        (i) =>
+          i.place_name === selectedRest.place_name &&
+          i.road_address_name === selectedRest.road_address_name
+      )
+      if (hasRest) {
+        toast.error('동일한 가게 정보가 이미 등록되어 있습니다.')
+        return
+      }
+
       setIsSaving(true)
 
       try {
@@ -86,7 +103,7 @@ export function RestaurantAddModal({ isOpen, onClose, onSave }: RestaurantAddMod
         setIsSaving(false)
       }
     },
-    [onSave, onClose, supabase, isSaving]
+    [onSave, onClose, supabase, isSaving, restaurants]
   )
 
   const handleClose = useCallback(() => {
