@@ -339,10 +339,10 @@ export function RestaurantPicker({
                   transition={{ duration: 0.9, type: 'tween' }}
                   className='flex flex-col items-center gap-2 rounded-xl px-6 py-4 shadow-xl border border-pink-200'
                 >
-                  <span className='text-2xl font-bold mb-2 text-pink-600 drop-shadow-glow animate-pulse'>
+                  <span className='text-2xl font-bold mb-2 text-pink-600 drop-shadow-glow  animate-bounce'>
                     {picked.place_name}
                   </span>
-                  <span className='text-base text-blue-600 font-semibold animate-bounce'>
+                  <span className='text-base text-blue-600 font-semibold animate-pulse'>
                     {picked.category_name}
                   </span>
                   <span className='text-sm text-emerald-600 font-medium animate-fade-in-down'>
