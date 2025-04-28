@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import ipRangeCheck from 'ip-range-check';
+import ipRangeCheck from 'ip-range-check'
 
 // 허용할 IP 대역 (CIDR 형식)
-const ALLOWED_RANGES = (process.env.NEXT_PUBLIC_ALLOWED_IP_RANGES?.split(',') || []).map(x => x.trim());
+const ALLOWED_RANGES = (process.env.NEXT_PUBLIC_ALLOWED_IP_RANGES?.split(',') || []).map((x) =>
+  x.trim()
+)
 
 // 개발 환경에서 허용할 IP (선택 사항)
 const DEV_IPS = ['127.0.0.1', '::1']
@@ -40,9 +42,9 @@ export function middleware(request: NextRequest) {
   const isDevelopment = process.env.NODE_ENV === 'development'
 
   // 허용된 IP 대역
-  let allowedRanges = [...ALLOWED_RANGES];
+  let allowedRanges = [...ALLOWED_RANGES]
   if (isDevelopment) {
-    allowedRanges = [...allowedRanges, ...DEV_IPS];
+    allowedRanges = [...allowedRanges, ...DEV_IPS]
   }
 
   // IP 주소를 확인할 수 없는 경우 차단 페이지로 rewrite
