@@ -4,7 +4,6 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-  CardFooter,
   CardDescription
 } from '@/components/common/ui/card'
 import { Separator } from '@/components/common/ui/separator'
@@ -12,12 +11,11 @@ import { Button } from '@/components/common/ui/button'
 
 export interface RestaurantCardProps {
   restaurant: Restaurant
-  onReset: () => void
 }
 
-export function RestaurantCard({ restaurant, onReset }: RestaurantCardProps) {
+export function RestaurantCard({ restaurant }: RestaurantCardProps) {
   return (
-    <Card className='mt-6 py-3 gap-2'>
+    <Card className='mt-6 py-4 gap-2'>
       <CardHeader>
         <CardTitle>{restaurant.place_name}</CardTitle>
         <div className='flex justify-between items-center'>
@@ -39,11 +37,6 @@ export function RestaurantCard({ restaurant, onReset }: RestaurantCardProps) {
           <p className='text-sm'>주소: {restaurant.road_address_name}</p>
         </div>
       </CardContent>
-      <CardFooter>
-        <Button variant='outline' className='w-full' onClick={onReset}>
-          다시 고르기
-        </Button>
-      </CardFooter>
     </Card>
   )
 }

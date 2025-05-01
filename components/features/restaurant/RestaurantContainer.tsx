@@ -107,15 +107,13 @@ export function RestaurantContainer({ initialRestaurants }: RestaurantContainerP
             <RestaurantPicker
               selectedCategory={selectedCategory}
               onCategoryChange={handleCategoryChange}
-              restaurants={filteredRestaurantsList}
+              selectedRestaurant={selectedRestaurant}
               onPickRandom={handlePickRandom}
             />
           </CardContent>
         </Card>
 
-        {selectedRestaurant && (
-          <RestaurantCard restaurant={selectedRestaurant} onReset={handlePickRandom} />
-        )}
+        {selectedRestaurant && <RestaurantCard restaurant={selectedRestaurant} />}
       </div>
 
       <div className='lg:w-2/3 flex-1 h-full'>
@@ -138,7 +136,7 @@ export function RestaurantContainer({ initialRestaurants }: RestaurantContainerP
               </CardContent>
             </Card>
           </TabsContent>
-          <TabsContent value='info'>
+          <TabsContent value='info' className='overflow-y-auto'>
             <RestaurantList
               restaurants={filteredRestaurantsList}
               onDelete={handleDeleteRestaurant}
@@ -168,10 +166,10 @@ function RestaurantList({
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead className='text-center'>가게명</TableHead>
-          <TableHead className='text-center'>카테고리</TableHead>
-          <TableHead className='text-center'>주소</TableHead>
-          <TableHead className='text-center'>액션</TableHead>
+          <TableHead className='text-center text-base font-bold'>가게명</TableHead>
+          <TableHead className='text-center text-base font-bold'>카테고리</TableHead>
+          <TableHead className='text-center text-base font-bold'>주소</TableHead>
+          <TableHead className='text-center text-base font-bold'>액션</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>

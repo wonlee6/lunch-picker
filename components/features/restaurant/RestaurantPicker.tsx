@@ -12,18 +12,17 @@ import Confetti from 'react-confetti'
 export interface RestaurantPickerProps {
   selectedCategory: Category | 'all'
   onCategoryChange: (category: Category | 'all') => void
-  restaurants: Restaurant[]
+  selectedRestaurant: Restaurant | null
   onPickRandom: () => void
 }
 
 export function RestaurantPicker({
   selectedCategory,
   onCategoryChange,
-  restaurants,
+  selectedRestaurant,
   onPickRandom
 }: RestaurantPickerProps) {
   const [open, setOpen] = useState(false)
-  const [picked, setPicked] = useState<Restaurant | null>(null)
   const [showConfetti, setShowConfetti] = useState(false)
   const [particles, setParticles] = useState<
     { x: number; y: number; emoji: string; delay: number }[]
@@ -32,36 +31,6 @@ export function RestaurantPicker({
     { x: number; y: number; colors: string[]; delay: number }[]
   >([])
   const confettiTimeout = useRef<NodeJS.Timeout | null>(null)
-
-  const EMOJIS = [
-    '🍕',
-    '🍔',
-    '🍣',
-    '🥟',
-    '🍜',
-    '🍗',
-    '🥗',
-    '🍩',
-    '🍦',
-    '🥨',
-    '🧁',
-    '🍟',
-    '🍱',
-    '🍛',
-    '🍙',
-    '🍚',
-    '🍝'
-  ]
-  const FIREWORK_COLORS = [
-    '#fbbf24',
-    '#f472b6',
-    '#60a5fa',
-    '#34d399',
-    '#f87171',
-    '#fff',
-    '#fde68a',
-    '#c7d2fe'
-  ]
 
   // 별똥별(Starfall) 컴포넌트
   const Starfall = ({ count = 6 }: { count?: number }) => {
@@ -211,19 +180,11 @@ export function RestaurantPicker({
   }
 
   const handlePickRandom = () => {
-    if (!restaurants || restaurants.length === 0) {
-      setPicked(null)
-      setOpen(true)
-      return
-    }
     setOpen(true)
-    setPicked(null)
     setShowConfetti(false)
     setParticles([])
     setFireworks([])
     setTimeout(() => {
-      const randomItem = restaurants[Math.floor(Math.random() * restaurants.length)]
-      setPicked(randomItem)
       setShowConfetti(true)
       launchParticles()
       launchFireworks()
@@ -240,7 +201,6 @@ export function RestaurantPicker({
 
   const handleClose = () => {
     setOpen(false)
-    setPicked(null)
     setShowConfetti(false)
     setParticles([])
     setFireworks([])
@@ -272,7 +232,7 @@ export function RestaurantPicker({
           랜덤 선택하기
         </Button>
         <p className='text-xs text-center text-muted-foreground'>
-          선택한 카테고리에서 랜덤으로 식당을 추천해 드립니다.
+          선택한 카테고리에서 랜덤으로 가게를 추천해 드립니다.
         </p>
       </div>
 
@@ -309,7 +269,7 @@ export function RestaurantPicker({
               <Particle key={idx} {...p} />
             ))}
             <AnimatePresence mode='wait'>
-              {!picked ? (
+              {!selectedRestaurant ? (
                 <motion.span
                   key='roulette-spin'
                   initial={{ rotate: 0, scale: 0.7, opacity: 0 }}
@@ -340,13 +300,13 @@ export function RestaurantPicker({
                   className='flex flex-col items-center gap-2 rounded-xl px-6 py-4 shadow-xl border border-pink-200'
                 >
                   <span className='text-2xl font-bold mb-2 text-pink-600 drop-shadow-glow  animate-bounce'>
-                    {picked.place_name}
+                    {selectedRestaurant.place_name}
                   </span>
                   <span className='text-base text-blue-600 font-semibold animate-pulse'>
-                    {picked.category_name}
+                    {selectedRestaurant.category_name}
                   </span>
                   <span className='text-sm text-emerald-600 font-medium animate-fade-in-down'>
-                    {picked.road_address_name}
+                    {selectedRestaurant.road_address_name}
                   </span>
                 </motion.div>
               )}
@@ -360,3 +320,33 @@ export function RestaurantPicker({
     </div>
   )
 }
+
+const EMOJIS = [
+  '🍕',
+  '🍔',
+  '🍣',
+  '🥟',
+  '🍜',
+  '🍗',
+  '🥗',
+  '🍩',
+  '🍦',
+  '🥨',
+  '🧁',
+  '🍟',
+  '🍱',
+  '🍛',
+  '🍙',
+  '🍚',
+  '🍝'
+]
+const FIREWORK_COLORS = [
+  '#fbbf24',
+  '#f472b6',
+  '#60a5fa',
+  '#34d399',
+  '#f87171',
+  '#fff',
+  '#fde68a',
+  '#c7d2fe'
+]
